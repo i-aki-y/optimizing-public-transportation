@@ -104,7 +104,7 @@ class Producer:
         """Get AdminClient"""
         return AdminClient({
             "bootstrap.servers": self.broker_properties["BROKER_URL"],
-            'debug': 'broker,admin'
+            # "debug": "broker,admin"
         })
 
 

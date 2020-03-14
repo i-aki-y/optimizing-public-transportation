@@ -14,10 +14,6 @@ TOPIC_NAME_COMMON = "org.chicago.cta.turnstile"
 
 class Turnstile(Producer):
     key_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/turnstile_key.json")
-
-    #
-    # TODO: Define this value schema in `schemas/turnstile_value.json, then uncomment the below
-    #
     value_schema = avro.load(
         f"{Path(__file__).parents[0]}/schemas/turnstile_value.json"
     )
@@ -51,20 +47,22 @@ class Turnstile(Producer):
     def run(self, timestamp, time_step):
         """Simulates riders entering through the turnstile."""
         num_entries = self.turnstile_hardware.get_entries(timestamp, time_step)
-        logger.info("turnstile kafka integration incomplete - skipping")
+        logger.info("run turnstile")
         #
         #
         # TODO: Complete this function by emitting a message to the turnstile topic for the number
         # of entries that were calculated
         #
         #
-        logger.info("arrival kafka integration incomplete - skipping")
+        logger.info("produce arrival")
         self.producer.produce(
             topic=self.topic_name,
-            key={"timestamp": timestamp},
+            key={"timestamp": self.time_millis()},
             value={
                 "station_id": self.station.station_id,
                 "station_name": self.station.name,
                 "line": self.station.color.name
             },
+            key_schema=self.key_schema,
+            value_schema=self.value_schema
         )
