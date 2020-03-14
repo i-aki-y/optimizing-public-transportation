@@ -13,6 +13,8 @@ from models.producer import Producer
 
 logger = logging.getLogger(__name__)
 
+TOPIC_NAME_COMMON = "udacity.project.chicago"
+
 
 class Weather(Producer):
     """Defines a simulated weather model"""
@@ -37,7 +39,7 @@ class Weather(Producer):
         #
         #
         super().__init__(
-            "weather", # TODO: Come up with a better topic name
+            f"{TOPIC_NAME_COMMON}.weather", # TODO: Come up with a better topic name
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
         )
@@ -80,30 +82,35 @@ class Weather(Producer):
         #
         #
         logger.info("weather kafka proxy integration incomplete - skipping")
-        #resp = requests.post(
-        #    #
-        #    #
-        #    # TODO: What URL should be POSTed to?
-        #    #
-        #    #
-        #    f"{Weather.rest_proxy_url}/TODO",
-        #    #
-        #    #
-        #    # TODO: What Headers need to bet set?
-        #    #
-        #    #
-        #    headers={"Content-Type": "TODO"},
-        #    data=json.dumps(
-        #        {
-        #            #
-        #            #
-        #            # TODO: Provide key schema, value schema, and records
-        #            #
-        #            #
-        #        }
-        #    ),
-        #)
-        #resp.raise_for_status()
+        data = json.dumps(
+                {
+                    "value_schema": json.dumps(Weather.value_schema),
+                    "key_schema": json.dumps(Weather.key_schema),
+                    "records": [
+                        {
+                            "key": {"timestamp": self.time_millis()},
+                            "value": {"temperature": self.temp, "status": self.status.name}
+                        }
+                    ]
+                }
+            )
+        print(data)
+        resp = requests.post(
+            #
+            #
+            # TODO: What URL should be POSTed to?
+            #
+            #
+            f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
+            #
+            #
+            # TODO: What Headers need to bet set?
+            #
+            #
+            headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
+            data= data,
+        )
+        resp.raise_for_status()
 
         logger.debug(
             "sent weather data to kafka, temp: %s, status: %s",
