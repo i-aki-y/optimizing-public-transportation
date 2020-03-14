@@ -10,7 +10,7 @@ from models.turnstile_hardware import TurnstileHardware
 
 logger = logging.getLogger(__name__)
 
-TOPIC_NAME_COMMON = "udacity.project.chicago.turnstile"
+TOPIC_NAME_COMMON = "org.chicago.cta.turnstile"
 
 class Turnstile(Producer):
     key_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/turnstile_key.json")
@@ -39,7 +39,7 @@ class Turnstile(Producer):
         #
         #
         super().__init__(
-            f"{TOPIC_NAME_COMMON}.turnstile",
+            f"{TOPIC_NAME_COMMON}.{station_name}",
             key_schema=Turnstile.key_schema,
             value_schema=Turnstile.value_schema,
             num_partitions=5,

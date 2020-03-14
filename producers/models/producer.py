@@ -2,7 +2,6 @@
 import logging
 import time
 
-
 from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer, CachedSchemaRegistryClient
@@ -30,7 +29,7 @@ class Producer:
         topic_name,
         key_schema,
         value_schema=None,
-        num_partitions=1,
+        num_partitions=3,
         num_replicas=1,
     ):
         """Initializes a Producer object with basic settings"""
@@ -51,7 +50,8 @@ class Producer:
             "SCHEMA_REGISTRY_URL": "http://localhost:8081",
         }
 
-        self.update_existing_topics()
+        if len(Producer.existing_topics) == 0:
+            self.update_existing_topics()
 
         # If the topic does not already exist, try to create it
         if self.topic_name not in Producer.existing_topics:
@@ -75,7 +75,7 @@ class Producer:
         # the Kafka Broker.
         #
         #
-        logger.info("start topic creation {self.topic_name}")
+        logger.info(f"start topic creation {self.topic_name}")
         client = self.get_broker()
         futures = client.create_topics(
             [
@@ -94,7 +94,6 @@ class Producer:
             except Exception as e:
                 logger.warning(f"fail to create {self.topic_name}: {e}")
 
-
     def update_existing_topics(self):
         """Get topic list from broker and update existing topics variable"""
         client = self.get_broker()
@@ -103,7 +102,10 @@ class Producer:
 
     def get_broker(self):
         """Get AdminClient"""
-        return AdminClient({"bootstrap.servers": self.broker_properties["BROKER_URL"]})
+        return AdminClient({
+            "bootstrap.servers": self.broker_properties["BROKER_URL"],
+            'debug': 'broker,admin'
+        })
 
 
     def close(self):

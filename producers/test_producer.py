@@ -33,11 +33,14 @@ class TestProducer(unittest.TestCase):
 
     def test_station(self):
         colors = IntEnum("colors", "blue green red", start=0)
-        s = Station(40020, "TestStation", colors.red)
+        s = Station(40020, "test_station", colors.red)
         print(s)
 
         t = Train("BLUEL999", Train.status.in_service)
         s.run(t, "a", 90000, "a")
+
+        t = Train("BLUEL998", Train.status.in_service)
+        s.run(t, "a", 90001, "a")
 
 
     def test_weather(self):

@@ -10,7 +10,7 @@ from models.producer import Producer
 
 logger = logging.getLogger(__name__)
 
-TOPIC_NAME_COMMON = "udacity.project.chicago.station"
+TOPIC_NAME_COMMON = "org.chicago.cta"
 
 class Station(Producer):
     """Defines a single station"""
@@ -34,7 +34,7 @@ class Station(Producer):
         # replicas
         #
         #
-        topic_name = f"{TOPIC_NAME_COMMON}.{station_name}" # TODO: Come up with a better topic name
+        topic_name = f"{TOPIC_NAME_COMMON}.station.arrivals.{station_name}" # TODO: Come up with a better topic name
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,

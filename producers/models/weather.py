@@ -13,7 +13,7 @@ from models.producer import Producer
 
 logger = logging.getLogger(__name__)
 
-TOPIC_NAME_COMMON = "udacity.project.chicago"
+TOPIC_NAME_COMMON = "org.chicago.cta"
 
 
 class Weather(Producer):
@@ -39,7 +39,7 @@ class Weather(Producer):
         #
         #
         super().__init__(
-            f"{TOPIC_NAME_COMMON}.weather", # TODO: Come up with a better topic name
+            f"{TOPIC_NAME_COMMON}.weather.v1", # TODO: Come up with a better topic name
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
         )
@@ -81,7 +81,6 @@ class Weather(Producer):
         # specify the Avro schemas and verify that you are using the correct Content-Type header.
         #
         #
-        logger.info("weather kafka proxy integration incomplete - skipping")
         data = json.dumps(
                 {
                     "value_schema": json.dumps(Weather.value_schema),
