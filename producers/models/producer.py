@@ -5,6 +5,7 @@ import time
 from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer, CachedSchemaRegistryClient
+import confluent_kafka
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +15,8 @@ TOPIC_REPLICATION_FACTOR = 1
 TOPIC_CONFIG = {
     "cleanup.policy": "delete",
     "compression.type": "lz4",
-    "delete.retention.ms": "2000",
-    "file.delete.delay.ms": "2000",
+    "delete.retention.ms": "20000",
+    "file.delete.delay.ms": "20000",
 }
 
 class Producer:
@@ -63,9 +64,13 @@ class Producer:
         # TODO: Configure the AvroProducer
         schema_registry = CachedSchemaRegistryClient({"url": self.broker_properties["SCHEMA_REGISTRY_URL"]})
         self.producer = AvroProducer(
-            {"bootstrap.servers": "BROKER_URL"},
+            {
+                "bootstrap.servers": self.broker_properties["BROKER_URL"],
+                #"debug": "topic, queue"
+            },
             schema_registry=schema_registry
         )
+
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
@@ -115,8 +120,8 @@ class Producer:
         # TODO: Write cleanup code for the Producer here
         #
         #
-        self.producer.flush()
-        logger.info("producer closed")
+        res = self.producer.flush(0.2)
+        logger.info(f"{self.topic_name} producer closed. flush() returns {res}.")
 
 
     def time_millis(self):

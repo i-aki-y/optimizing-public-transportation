@@ -59,7 +59,7 @@ class Station(Producer):
         # TODO: Complete this function by producing an arrival message to Kafka
         #
         #
-        logger.info("start station run")
+        logger.info(f"start station {self.topic_name} run")
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
@@ -75,6 +75,9 @@ class Station(Producer):
             key_schema=Station.key_schema,
             value_schema=Station.value_schema
         )
+        res = self.producer.flush(0.1)
+        logger.info(f"{self.topic_name} flush returns {res}")
+
 
     def __str__(self):
         return "Station | {:^5} | {:<30} | Direction A: | {:^5} | departing to {:<30} | Direction B: | {:^5} | departing to {:<30} | ".format(
