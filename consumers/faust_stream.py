@@ -33,7 +33,7 @@ class Station(faust.Record):
             return "red"
         if self.blue:
             return "blue"
-        if self.gree:
+        if self.green:
             return "green"
         else:
             return ""
@@ -53,15 +53,14 @@ app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memor
 # TODO: Define the input Kafka Topic. Hint: What topic did Kafka Connect output to?
 topic = app.topic(f"{TOPIC_NAME_COMMON}.connect-stations", value_type=Station)
 # TODO: Define the output Kafka Topic
-out_topic = app.topic(f"{TOPIC_NAME_COMMON}.stations-stream", partitions=1)
+out_topic = app.topic("org.chicago.cta.stations.table.v1", partitions=1, value_type=TransformedStation, key_type=int)
 # TODO: Define a Faust Table
 table = app.Table(
-    # "TODO",
-    # default=TODO,
+    "station_table",
+    default=None,
     partitions=1,
     changelog_topic=out_topic,
 )
-
 
 #
 #
@@ -72,14 +71,9 @@ table = app.Table(
 #
 
 @app.agent(topic)
-async def station(stations):
-    stations.add_processor(transform_station)
+async def make_station_table(stations):
     async for station in stations:
-        await out_topic.send(key=station.stop_id, value=station)
-
-
-def transform_station(s: Station) -> TransformedStation:
-    return s.transform()
+        table[station.station_id] = station.transform()
 
 
 if __name__ == "__main__":

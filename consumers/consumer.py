@@ -46,12 +46,12 @@ class KafkaConsumer:
             self.broker_properties["schema.registry.url"] = "http://localhost:8081"
             schema_registry = CachedSchemaRegistryClient({"url": self.broker_properties["SCHEMA_REGISTRY_URL"]})
             self.consumer = AvroConsumer(
-                {"bootstrap.servers": self.broker_properties["BROKER_URL"], "group_id": "0"},
+                {"bootstrap.servers": self.broker_properties["BROKER_URL"], "group.id": "0"},
                 schema_registry=schema_registry
             )
         else:
             self.consumer = Consumer(
-                {"bootstrap.servers": self.broker_properties["BROKER_URL"], "group_id": "0"}
+                {"bootstrap.servers": self.broker_properties["BROKER_URL"], "group.id": "0"}
             )
         #
         #
@@ -99,6 +99,7 @@ class KafkaConsumer:
             logger.error(msg)
             raise ValueError(msg)
         else:
+            self.message_handler(message)
             return 1
 
 
